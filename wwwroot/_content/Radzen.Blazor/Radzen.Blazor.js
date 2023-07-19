@@ -630,6 +630,10 @@ window.Radzen = {
   numericOnInput: function (e, min, max) {
       var value = e.target.value;
 
+      if (value == '' && min != null) {
+          e.target.value = min;
+      }
+
       if (value && !isNaN(+value)) {
         var numericValue = +value;
         if (min != null && !isNaN(+min) && numericValue < min) {
@@ -1008,7 +1012,7 @@ window.Radzen = {
             }
         }
     }, 500);
-    
+
     if (options.closeDialogOnEsc) {
         document.removeEventListener('keydown', Radzen.closePopupOrDialog);
         document.addEventListener('keydown', Radzen.closePopupOrDialog);
@@ -1016,7 +1020,10 @@ window.Radzen = {
   },
   closeDialog: function () {
     document.body.classList.remove('no-scroll');
-    document.removeEventListener('keydown', Radzen.closePopupOrDialog);
+    var dialogs = document.querySelectorAll('.rz-dialog-content');
+    if (dialogs.length == 0) {
+        document.removeEventListener('keydown', Radzen.closePopupOrDialog);
+    }
   },
   getFocusableDialogElements: function () {
     var dialogs = document.querySelectorAll('.rz-dialog-content');
@@ -1361,10 +1368,10 @@ window.Radzen = {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     var status = xhr.status;
                     if (status === 0 || (status >= 200 && status < 400)) {
-                    var result = JSON.parse(xhr.responseText);
-                    document.execCommand("insertHTML", false, '<img src="' + result.url + '">');
+                        var result = JSON.parse(xhr.responseText);
+                        document.execCommand("insertHTML", false, '<img src="' + result.url + '">');
                     } else {
-                    console.log(xhr.responseText);
+                        instance.invokeMethodAsync('OnError', xhr.responseText);
                     }
                 }
             }
